@@ -1,6 +1,12 @@
-#Գրել class Money 
-#որը պետք է ունենա դաշտեր պահելու համար փողի քանակն ու արժույթի տեսակը։ 
-#Եվ ունենա մեթոդներ, փողը այլ արժույթի փոխանակելու, երկու փողեր իրար գումարելու, հանելու, բաժանելու, փողը թվով բազմապատկելու, հավասարությունը ստուգելու համար
+#Գրել class Money որը պետք է ունենա դաշտեր` 
+# 1.պահելու համար փողի քանակն ու արժույթի տեսակը։ 
+#Եվ ունենա մեթոդներ` 
+# 1.փողը այլ արժույթի փոխանակելու
+# 2.երկու փողեր իրար գումարելու
+# 3.հանելու
+# 4.բաժանելու
+# 4.փողը թվով բազմապատկելու
+# 5.հավասարությունը ստուգելու համար
 
 ##exchange
 class Exchange:
@@ -14,7 +20,6 @@ class Exchange:
     def ChangeMoney(self, from_this, to_this, money_quantity):      
         if from_this not in self.changeList or to_this not in self.changeList[from_this]:
             #debug Exemption            
-            #print(f"not int the exchange {from_this}")
             return None
         new_money_quantity = self.changeList[from_this][to_this] * money_quantity   
         return new_money_quantity
@@ -22,7 +27,8 @@ class Exchange:
 
 class Money:
     
-    def __init__(self):
+    def __init__(self, exchange):
+        self.exchange = exchange
         self._money = {}
         
     def append(self, money, quantity):
@@ -32,22 +38,18 @@ class Money:
             self._money[money] = quantity
     
     def Change_Money(self, from_money_type, to_money_type, money_quantity):
-        if self._money.get(from_money_type, 0)< money_quantity:           
+        if self._money[from_money_type] < money_quantity:           
              return ValueError("Недостаточно средств для конвертации")
         
-        new_money = self.change.ChangeMoney(from_money_type, to_money_type, money_quantity)
-        
+        new_money = self.exchange.ChangeMoney(from_money_type, to_money_type,money_quantity)
         if(new_money is None):
              raise ValueError("Конвертация невозможна: валюта не поддерживается")
        
         self._money[from_money_type] -= money_quantity;
-        self._money[to_money_type] = self._money.get(to_money_type, 0) + new_money     
-        
-        return new_money
-         
+        self.append(to_money_type, new_money)   
          
          #change seter to dictionery    
-    def exchange_form_to(self, form_currency, to_currency):
+    #def exchange_form_to(self, form_currency, to_currency):
  
  
  
@@ -61,15 +63,16 @@ changeMoney.AddChangeList('AMD', {'USD': 0.0025, 'EUR': 0.00224, 'AMD': 1.0, 'RU
  
 print (changeMoney.changeList);
     
-myMoney = Money();
+myMoney = Money(changeMoney);
 
 myMoney.append('USD',  15);
 myMoney.append('AMD',  4500);
-myMoney.append('RUB',  400);
+myMoney.append('RUB',  0);
 myMoney.append('EUR',  40);
 
+myMoney.Change_Money('USD', 'RUB', 12)
 print(myMoney._money)
 
-
-
+myMoney.Change_Money('RUB', 'AMD', 600)
+print(myMoney._money)
 
