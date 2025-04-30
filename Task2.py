@@ -17,10 +17,8 @@ class TimeError(Exception):
     pass
 
 
-class Data:
-
-    month_day = []
-    def __init__(self,day, month, year):
+class Date:
+    def __init__(self, year,month,day):
         if not (0 <= year):
             self._year = 0
             raise DateError(f"The year should be positive : {year}. It has been assigned 0")
@@ -72,13 +70,14 @@ class Data:
         
         while value > 0:
             month_days = self._days_in_month(self.year, self.month)
-            if value > month_days:
+            remaining_days = month_days - self.day
+
+            if value > remaining_days:
+                value -= (remaining_days + 1)
                 self._day = 1
                 self.add_month(1)
-                value -= month_days
             else:
-                
-                self._day = value
+                self._day += value
                 value = 0
 
         self._validate()
@@ -101,8 +100,19 @@ class Data:
         if not isinstance(value, int) or value < 0:
             raise DateError(f"The month should be positive : {value}.")
         
-        self.add_year( (value - 1) // 12 )
-        self._month = (value - 1) % 12 + 1
+        while value > 0:
+            if value + self.month > 12:
+                self._month += 1
+                self.add_year(1)
+                value -= (12 + self.month)
+            else:
+                self._month += value
+                value = 0
+
+        self._validate()
+
+        # self.add_year( (value - 1) // 12 )
+        # self._month = (value - 1) % 12 + 1
 
     @property
     def year(self):
@@ -130,34 +140,25 @@ class Data:
 
 
 class Time:
-    def __init__(self, date, second, minute, hour):
-    
+    def __init__(self, date, hour, minute, second):
         self._date = date
-
-        if not (0 <= hour <= 24):
-            self._hour = hour
-        else:
-            self._hour = 0
-            raise TimeError(f"The hour sent is incorrect : {hour}. It has been assigned 0")
-        
-        if not (0 <= minute <= 24):
-            self._minute = minute
-        else:
-            self._minute = 0
-            raise TimeError(f"The minute sent is incorrect : {minute}. It has been assigned 0")
-
-        if not (0 <= second <= 60):
-            self._second = second
-        else:
-            self._second = 0
-            raise TimeError(f"The second sent is incorrect : {second}. It has been assigned 0")
+        self.hour = hour
+        self.minute= minute
+        self.second = second
 
     @property
     def hour(self):
         return self._hour
     
     @hour.setter   
-    def hour(self,value):
+    def hour(self, value):
+        if (0 <= value < 24):
+            self._hour = value
+        else:
+            self._hour = 0
+            raise TimeError(f"The hour sent is incorrect : {value}. It has been assigned 0")
+
+    def add_hour(self, value):
         self._hour += value
         day = int( self._hour / 24 )
         self._hour %= 24          
@@ -168,11 +169,19 @@ class Time:
         return self._minute
 
     @minute.setter
-    def minute(self, value):
+    def minute(self,value):
+        if (0 <= value < 60):
+            self._minute = value
+        else:
+            self._minute = 0
+            raise TimeError(f"The minute sent is incorrect : {value}. It has been assigned 0")
+
+
+    def add_minute(self, value):
         self._minute += value
         hour = int(self._minute / 60)
         self._minute %= 60
-        self.hour =+ hour
+        self.hour += hour
     
 
     @property
@@ -180,7 +189,14 @@ class Time:
         return self._second
 
     @second.setter
-    def second(self, value):
+    def second(self,value):
+        if (0 <= value < 60):
+            self._second = value
+        else:
+            self._second = 0
+            raise TimeError(f"The second sent is incorrect : {value}. It has been assigned 0")
+
+    def add_second(self, value):
         self._second += value
         minute = int(self._second / 60)
         self._second %= 60
@@ -189,7 +205,24 @@ class Time:
     def __str__(self):
         return f"{self._hour}:{self._minute}:{self._second} {self._date.year}-{self._date.month}-{self._date.day}"
 
+date = Date(2023,2,27)
+time = Time(date, 20, 30, 0)
+print(time)
 
-time = Time(Data(2023, 10, 1), 0, 0, 0)
-print(time.hour)
+time.add_second(65)
+print(time)
 
+time.add_minute(26)
+print(time)
+
+time.add_hour(6)
+print(time)
+
+date.add_day(1)
+print(time)
+
+date.add_month(12)
+print(time)
+
+date.add_year(1)
+print(time)
